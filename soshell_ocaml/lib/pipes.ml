@@ -1,93 +1,100 @@
-(* ficha P7 - verificar se existe pipe *)
+(* ficha P7 suplementar - verificar se existe pipe *)
 let contains_pipe args =
   let rec aux i =
-    if i >= Array.length args then
-      -1
-    else if args.(i) = "|" then
-      i
-    else
-      aux (i + 1)
+    if i >= Array.length args then -1
+    else if args.(i) = "|" then i
+    else aux (i + 1)
   in
   aux 0
 
-(* ficha P7 - executar dois comandos ligados por pipe simples *)
-(* ficha P7 - executar dois comandos ligados por pipe simples *)
+(* ficha P7 suplementar - dividir argumentos por pipes *)
+let split_by_pipe args =
+  let rec aux current acc = function
+    | [] ->
+        List.rev (Array.of_list (List.rev current) :: acc)
+
+    | "|" :: rest ->
+        aux [] (Array.of_list (List.rev current) :: acc) rest
+
+    | x :: rest ->
+        aux (x :: current) acc rest
+  in
+
+  aux [] [] (Array.to_list args)
+
+(* ficha P7 suplementar - validar comandos do pipe *)
+let valid_commands commands =
+  List.for_all (fun cmd -> Array.length cmd > 0) commands
+
+(* ficha P7 suplementar - executar varios comandos ligados por pipes *)
 let executar args =
   let background = Executor.is_background args in
   let args = Executor.remove_background args in
+  let commands = split_by_pipe args in
 
-  let pipe_index = contains_pipe args in
-
-  if pipe_index <= 0 || pipe_index >= Array.length args - 1 then
+  if not (valid_commands commands) then
     prerr_endline "Erro: sintaxe incorreta no pipe"
-  else begin
-    (* comando antes do pipe *)
-    let left =
-      Array.sub args 0 pipe_index
-    in
+  else
+    let n = List.length commands in
 
-    (* comando depois do pipe *)
-    let right =
-      Array.sub args
-        (pipe_index + 1)
-        (Array.length args - pipe_index - 1)
-    in
+    if n < 2 then
+      prerr_endline "Erro: pipe insuficiente"
+    else begin
+      let pipes =
+        Array.init (n - 1) (fun _ -> Unix.pipe ())
+      in
 
-    (* criar pipe *)
-    let read_fd, write_fd = Unix.pipe () in
+      let close_all_pipes () =
+        Array.iter
+          (fun (r, w) ->
+            Unix.close r;
+            Unix.close w)
+          pipes
+      in
 
-    match Unix.fork () with
-
-    (* processo filho da esquerda: escreve para o pipe *)
-    | 0 ->
-        begin
-          try
-            Unix.dup2 write_fd Unix.stdout;
-
-            Unix.close read_fd;
-            Unix.close write_fd;
-
-            (* ficha P6 - permitir redirecionamentos no comando da esquerda *)
-            let left = Redirects.redirects left in
-
-            Unix.execvp left.(0) left
-          with
-          | Unix.Unix_error (err, _, _) ->
-              prerr_endline ("Erro: " ^ Unix.error_message err);
-              exit 1
-        end
-
-    (* processo pai *)
-    | pid1 ->
+      let executar_comando i cmd =
         match Unix.fork () with
-
-        (* processo filho da direita: lê do pipe *)
         | 0 ->
             begin
               try
-                Unix.dup2 read_fd Unix.stdin;
+                (* se nao for o primeiro comando, lê do pipe anterior *)
+                if i > 0 then begin
+                  let r, _ = pipes.(i - 1) in
+                  Unix.dup2 r Unix.stdin
+                end;
 
-                Unix.close read_fd;
-                Unix.close write_fd;
+                (* se nao for o ultimo comando, escreve para o proximo pipe *)
+                if i < n - 1 then begin
+                  let _, w = pipes.(i) in
+                  Unix.dup2 w Unix.stdout
+                end;
 
-                (* ficha P6 - permitir redirecionamentos no comando da direita *)
-                let right = Redirects.redirects right in
+                close_all_pipes ();
 
-                Unix.execvp right.(0) right
+                (* ficha P6 - permitir redirecionamentos em cada comando *)
+                let cmd = Redirects.redirects cmd in
+
+                Unix.execvp cmd.(0) cmd
               with
               | Unix.Unix_error (err, _, _) ->
                   prerr_endline ("Erro: " ^ Unix.error_message err);
                   exit 1
             end
+        | pid ->
+            pid
+      in
 
-        (* processo pai: fecha descritores e espera *)
-        | pid2 ->
-            Unix.close read_fd;
-            Unix.close write_fd;
-            if background then
-              Printf.printf "[background] pipe pids %d %d\n%!" pid1 pid2
-            else begin
-              ignore (Unix.waitpid [] pid1);
-              ignore (Unix.waitpid [] pid2)
-            end
-  end
+      let pids =
+        commands
+        |> List.mapi executar_comando
+      in
+
+      close_all_pipes ();
+
+      if background then
+        print_endline "[background] pipeline"
+      else
+        List.iter
+          (fun pid -> ignore (Unix.waitpid [] pid))
+          pids
+    end

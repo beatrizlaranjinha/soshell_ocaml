@@ -1,7 +1,7 @@
 (executable
  (public_name soshell_ocaml)
  (name main)
- (libraries soshell_ocaml unix threads))
+ (libraries soshell_ocaml unix threads str))
 
 (executable
  (public_name threads)

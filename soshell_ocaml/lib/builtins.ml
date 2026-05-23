@@ -1,6 +1,9 @@
 (* prompt da shell *)
 let prompt = ref "SOSHELL> "
 
+(* ficha 4 suplementar - guardar diretoria anterior *)
+let previous_dir = ref None
+
 (* ficha 4 ex 6 - copiar dados entre ficheiros *)
 let io_copy in_fd out_fd =
   let buffer = Bytes.create 1024 in
@@ -46,7 +49,22 @@ let builtin args =
   (* ficha 4 ex 3 - mudar o prompt *)
   else if String.length args.(0) > 4
           && String.sub args.(0) 0 4 = "PS1=" then begin
-    prompt := String.sub args.(0) 4 (String.length args.(0) - 4);
+
+    let novo =
+      String.sub args.(0) 4 (String.length args.(0) - 4)
+    in
+
+    let hostname = Unix.gethostname () in
+
+    let novo =
+      Str.global_replace
+        (Str.regexp "\\\\h")
+        hostname
+        novo
+    in
+
+    prompt := novo;
+
     true
   end
 
@@ -60,22 +78,33 @@ let builtin args =
 
   (* ficha 4 ex 5 - mudar de diretoria *)
   else if args.(0) = "cd" then begin
+    let atual = Sys.getcwd () in
+
     let destino =
-      if Array.length args < 2 || args.(1) = "~" || args.(1) = "$HOME" then
-        Sys.getenv "HOME"
-      else
-        args.(1)
+      match Array.to_list args with
+      | [_] -> Sys.getenv "HOME"
+      | [_; "~"] -> Sys.getenv "HOME"
+      | [_; "$HOME"] -> Sys.getenv "HOME"
+      | [_; "-"] ->
+          begin
+            match !previous_dir with
+            | Some dir -> dir
+            | None -> atual
+          end
+      | _ :: dir :: _ -> dir
+      | _ -> Sys.getenv "HOME"
     in
 
     try
       Unix.chdir destino;
+      previous_dir := Some atual;
+      print_endline (Sys.getcwd ());
       true
     with
     | Unix.Unix_error (err, _, _) ->
         prerr_endline (destino ^ ": " ^ Unix.error_message err);
         true
   end
-
   (* ficha 4 ex 6 - copiar ficheiro *)
   else if args.(0) = "socp" then begin
     if Array.length args >= 3 then begin
