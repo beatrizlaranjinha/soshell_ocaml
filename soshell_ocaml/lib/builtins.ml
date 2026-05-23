@@ -202,6 +202,53 @@ let builtin args =
         true
       end
 
+      (* ficha P9 ex 1 - mostrar o maior de dois ficheiros *)
+      else if args.(0) = "maior" then begin
+        match Array.to_list args with
+        | [_; f1; f2] ->
+            Fileutils.maior f1 f2;
+            true
+        | _ ->
+            print_endline "Uso: maior ficheiro1 ficheiro2";
+            true
+      end
+
+      (* ficha P9 ex 2 - adicionar permissao de execucao ao dono *)
+      else if args.(0) = "setx" then begin
+        match Array.to_list args with
+        | [_; ficheiro] ->
+            Fileutils.setx ficheiro;
+            true
+        | _ ->
+            print_endline "Uso: setx ficheiro";
+            true
+      end
+
+      (* ficha P9 ex 3 - remover leitura ao grupo e aos outros *)
+      else if args.(0) = "removerl" then begin
+        match Array.to_list args with
+        | [_; ficheiro] ->
+            Fileutils.removerl ficheiro;
+            true
+        | _ ->
+            print_endline "Uso: removerl ficheiro";
+            true
+      end
+
+      (* ficha P9 ex 4 - listagem rapida *)
+      else if args.(0) = "sols" then begin
+        match Array.to_list args with
+        | [_] ->
+            Fileutils.sols None;
+            true
+        | [_; pasta] ->
+            Fileutils.sols (Some pasta);
+            true
+        | _ ->
+            print_endline "Uso: sols [diretoria]";
+            true
+      end
+
       (* comando externo *)
       else
         false

@@ -1,5 +1,6 @@
 soshell_ocaml__Builtins
 soshell_ocaml__Executor
+soshell_ocaml__Fileutils
 soshell_ocaml__Parser
 soshell_ocaml__Pipes
 soshell_ocaml__Redirects

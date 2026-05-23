@@ -6,6 +6,9 @@ module Builtins = Soshell_ocaml__Builtins
 (** @canonical Soshell_ocaml.Executor *)
 module Executor = Soshell_ocaml__Executor
 
+(** @canonical Soshell_ocaml.Fileutils *)
+module Fileutils = Soshell_ocaml__Fileutils
+
 (** @canonical Soshell_ocaml.Parser *)
 module Parser = Soshell_ocaml__Parser
 

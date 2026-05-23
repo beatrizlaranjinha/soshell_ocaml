@@ -1,1 +1,1 @@
-lib/builtins.ml: Array Bytes Str String Sys Threads Unix
+lib/builtins.ml: Array Bytes Fileutils Str String Sys Threads Unix
