@@ -5,7 +5,7 @@ O projeto aborda conceitos fundamentais como a gestão de processos, concorrênc
 
 ---
 
-## Funcionalidades Principais
+Funcionalidades Principais
 
 *  **Execução de comandos externos** (com procura na variável de ambiente `$PATH`).
 * **Comandos embutidos (*builtins*)** para controlo interno da shell.
