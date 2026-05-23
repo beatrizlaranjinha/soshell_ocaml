@@ -92,6 +92,87 @@ let builtin args =
     end
   end
 
-  (* comando externo *)
-  else
-    false
+      (* ficha P8 ex 2 - aviso bloqueante *)
+      else if args.(0) = "avisoTeste" then begin
+        match Array.to_list args with
+        | [_; msg; tempo] ->
+            begin
+              match int_of_string_opt tempo with
+              | Some t ->
+                  Threads.aviso msg t;
+                  true
+              | None ->
+                  print_endline "Erro: tempo deve ser um numero inteiro";
+                  true
+            end
+        | _ ->
+            print_endline "Uso: avisoTeste mensagem tempo";
+            true
+      end
+
+      (* ficha P8 ex 3a - aviso mau em thread *)
+      else if args.(0) = "avisomau" then begin
+        match Array.to_list args with
+        | [_; _msg; tempo] ->
+            begin
+              match int_of_string_opt tempo with
+              | Some _ ->
+                  Threads.avisomau args;
+                  true
+              | None ->
+                  print_endline "Erro: tempo deve ser um numero inteiro";
+                  true
+            end
+        | _ ->
+            print_endline "Uso: avisomau mensagem tempo";
+            true
+      end
+
+      (* ficha P8 ex 3b - aviso correto em thread *)
+      else if args.(0) = "aviso" then begin
+        match Array.to_list args with
+        | [_; msg; tempo] ->
+            begin
+              match int_of_string_opt tempo with
+              | Some t ->
+                  Threads.aviso_thread msg t;
+                  true
+              | None ->
+                  print_endline "Erro: tempo deve ser um numero inteiro";
+                  true
+            end
+        | _ ->
+            print_endline "Uso: aviso mensagem tempo";
+            true
+      end
+
+      (* ficha P8 ex 4 - copiar ficheiro numa thread *)
+      else if args.(0) = "socpthread" then begin
+        match Array.to_list args with
+        | [_; fonte; destino] ->
+            Threads.socpthread fonte destino 1024;
+            true
+        | [_; fonte; destino; blksize] ->
+            begin
+              match int_of_string_opt blksize with
+              | Some n when n > 0 ->
+                  Threads.socpthread fonte destino n;
+                  true
+              | _ ->
+                  print_endline "Erro: blksize deve ser um inteiro positivo";
+                  true
+            end
+        | _ ->
+            print_endline "Uso: socpthread fonte destino [blksize]";
+            true
+      end
+
+      (* ficha P8 ex 4c - listar copias terminadas *)
+      else if args.(0) = "infoCopias" then begin
+        Threads.info_copias ();
+        true
+      end
+
+      (* comando externo *)
+      else
+        false

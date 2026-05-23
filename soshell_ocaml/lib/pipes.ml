@@ -1,4 +1,4 @@
-(* ficha extra - verificar se existe pipe *)
+(* ficha P7 - verificar se existe pipe *)
 let contains_pipe args =
   let rec aux i =
     if i >= Array.length args then
@@ -10,45 +10,84 @@ let contains_pipe args =
   in
   aux 0
 
-(* ficha extra - executar dois comandos ligados por pipe *)
+(* ficha P7 - executar dois comandos ligados por pipe simples *)
+(* ficha P7 - executar dois comandos ligados por pipe simples *)
 let executar args =
+  let background = Executor.is_background args in
+  let args = Executor.remove_background args in
+
   let pipe_index = contains_pipe args in
 
-  let left =
-    Array.sub args 0 pipe_index
-  in
+  if pipe_index <= 0 || pipe_index >= Array.length args - 1 then
+    prerr_endline "Erro: sintaxe incorreta no pipe"
+  else begin
+    (* comando antes do pipe *)
+    let left =
+      Array.sub args 0 pipe_index
+    in
 
-  let right =
-    Array.sub args
-      (pipe_index + 1)
-      (Array.length args - pipe_index - 1)
-  in
+    (* comando depois do pipe *)
+    let right =
+      Array.sub args
+        (pipe_index + 1)
+        (Array.length args - pipe_index - 1)
+    in
 
-  let read_fd, write_fd = Unix.pipe () in
+    (* criar pipe *)
+    let read_fd, write_fd = Unix.pipe () in
 
-  match Unix.fork () with
+    match Unix.fork () with
 
-  (* processo filho da esquerda *)
-  | 0 ->
-      Unix.dup2 write_fd Unix.stdout;
-      Unix.close read_fd;
-      Unix.close write_fd;
-      Unix.execvp left.(0) left
+    (* processo filho da esquerda: escreve para o pipe *)
+    | 0 ->
+        begin
+          try
+            Unix.dup2 write_fd Unix.stdout;
 
-  (* processo pai *)
-  | pid1 ->
-      match Unix.fork () with
+            Unix.close read_fd;
+            Unix.close write_fd;
 
-      (* processo filho da direita *)
-      | 0 ->
-          Unix.dup2 read_fd Unix.stdin;
-          Unix.close read_fd;
-          Unix.close write_fd;
-          Unix.execvp right.(0) right
+            (* ficha P6 - permitir redirecionamentos no comando da esquerda *)
+            let left = Redirects.redirects left in
 
-      (* processo pai *)
-      | pid2 ->
-          Unix.close read_fd;
-          Unix.close write_fd;
-          ignore (Unix.waitpid [] pid1);
-          ignore (Unix.waitpid [] pid2)
+            Unix.execvp left.(0) left
+          with
+          | Unix.Unix_error (err, _, _) ->
+              prerr_endline ("Erro: " ^ Unix.error_message err);
+              exit 1
+        end
+
+    (* processo pai *)
+    | pid1 ->
+        match Unix.fork () with
+
+        (* processo filho da direita: lê do pipe *)
+        | 0 ->
+            begin
+              try
+                Unix.dup2 read_fd Unix.stdin;
+
+                Unix.close read_fd;
+                Unix.close write_fd;
+
+                (* ficha P6 - permitir redirecionamentos no comando da direita *)
+                let right = Redirects.redirects right in
+
+                Unix.execvp right.(0) right
+              with
+              | Unix.Unix_error (err, _, _) ->
+                  prerr_endline ("Erro: " ^ Unix.error_message err);
+                  exit 1
+            end
+
+        (* processo pai: fecha descritores e espera *)
+        | pid2 ->
+            Unix.close read_fd;
+            Unix.close write_fd;
+            if background then
+              Printf.printf "[background] pipe pids %d %d\n%!" pid1 pid2
+            else begin
+              ignore (Unix.waitpid [] pid1);
+              ignore (Unix.waitpid [] pid2)
+            end
+  end

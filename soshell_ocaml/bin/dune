@@ -2,3 +2,13 @@
  (public_name soshell_ocaml)
  (name main)
  (libraries soshell_ocaml unix threads))
+
+(executable
+ (public_name threads)
+ (name threads)
+ (libraries unix threads))
+
+(executable
+ (public_name pipe_sim)
+ (name pipe_sim)
+ (libraries unix))

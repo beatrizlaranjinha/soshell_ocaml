@@ -1,4 +1,4 @@
 (lang dune 3.17)
 (name soshell_ocaml)
 (sections (lib .) (bin ../../bin))
-(files (lib (META dune-package opam)) (bin (soshell_ocaml)))
+(files (lib (META dune-package opam)) (bin (pipe_sim soshell_ocaml threads)))

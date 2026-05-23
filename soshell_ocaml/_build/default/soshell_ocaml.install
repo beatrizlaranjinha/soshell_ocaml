@@ -4,5 +4,7 @@ lib: [
   "_build/install/default/lib/soshell_ocaml/opam"
 ]
 bin: [
+  "_build/install/default/bin/pipe_sim"
   "_build/install/default/bin/soshell_ocaml"
+  "_build/install/default/bin/threads"
 ]

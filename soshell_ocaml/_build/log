@@ -3,6 +3,7 @@
 # Shared cache: enabled-except-user-rules
 # Shared cache location: /Users/beatrizlaranjinha/.cache/dune/db
 # Workspace root: /Users/beatrizlaranjinha/Desktop/soshell_ocaml/soshell_ocaml
+# Auto-detected concurrency: 8
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -12,4 +13,4 @@
 #  ; build_dir = In_build_dir "default"
 #  ; instrument_with = []
 #  }
-$ /opt/homebrew/bin/ocamlc.opt -config > /var/folders/vj/055znpz14yq7qrff8l132z8h0000gn/T/dune_412f96_output
+$ /opt/homebrew/bin/ocamlc.opt -config > /var/folders/vj/055znpz14yq7qrff8l132z8h0000gn/T/dune_05c6ba_output

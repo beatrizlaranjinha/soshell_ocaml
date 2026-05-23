@@ -17,3 +17,6 @@ module Redirects = Soshell_ocaml__Redirects
 
 (** @canonical Soshell_ocaml.Shell *)
 module Shell = Soshell_ocaml__Shell
+
+(** @canonical Soshell_ocaml.Threads *)
+module Threads = Soshell_ocaml__Threads
