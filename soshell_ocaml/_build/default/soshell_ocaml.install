@@ -1,0 +1,8 @@
+lib: [
+  "_build/install/default/lib/soshell_ocaml/META"
+  "_build/install/default/lib/soshell_ocaml/dune-package"
+  "_build/install/default/lib/soshell_ocaml/opam"
+]
+bin: [
+  "_build/install/default/bin/soshell_ocaml"
+]

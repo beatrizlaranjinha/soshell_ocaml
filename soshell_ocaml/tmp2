@@ -1,0 +1,9 @@
+_build
+bin
+copia.txt
+dune-project
+lib
+soshell_ocaml.opam
+test
+teste.txt
+tmp1

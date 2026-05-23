@@ -1,2 +1,3 @@
 (library
- (name soshell_ocaml))
+ (name soshell_ocaml)
+ (libraries unix threads))
