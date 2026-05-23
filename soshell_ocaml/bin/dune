@@ -1,0 +1,4 @@
+(executable
+ (public_name soshell_ocaml)
+ (name main)
+ (libraries soshell_ocaml))

@@ -1,0 +1,6 @@
+# dune init proj soshell_ocaml
+# OCAMLPARAM: unset
+# Shared cache: enabled-except-user-rules
+# Shared cache location: /Users/beatrizlaranjinha/.cache/dune/db
+# Workspace root: /Users/beatrizlaranjinha/Desktop/soshell_ocaml/soshell_ocaml
+# Auto-detected concurrency: 8
