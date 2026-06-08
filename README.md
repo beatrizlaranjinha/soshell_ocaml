@@ -1,4 +1,4 @@
-# shell em ocaml
+shell em ocaml
 
 implementação de uma shell simples em ocaml para a unidade curricular de sistemas operativos.
 
